@@ -25,6 +25,7 @@ goto :init
     ::*** This is the important line ***
     set "__build_cfg=%__script_path%buildcfg.ini"
     set "__build_cancelled=0"
+    pushd %__script_path%
     goto :validate
 
 

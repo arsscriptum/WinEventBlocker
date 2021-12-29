@@ -1,4 +1,4 @@
-﻿
+
 //==============================================================================
 //
 //     main.cpp
@@ -196,7 +196,7 @@ int main(int argc, TCHAR **argv, TCHAR envp)
 				return 0;
 			}
 
-
+			
 			system("sc failure EventLog reset= 86400 actions= //15000//30000//1000");
 
 			
