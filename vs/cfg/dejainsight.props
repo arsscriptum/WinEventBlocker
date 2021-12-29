@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="utf-8"?> 
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+<PropertyGroup Label="PropertySheets_Included">
+  <dejainsight_integration>winapp_uses_deja</dejainsight_integration>
+</PropertyGroup>
+    
+<!--
+    //==============================================================================
+    //
+    //   dejainsight.props
+    //   Property sheet for the DejaInsight log tool integration.
+    //   NOTE
+    //   This property sheet contains specific definition that relates to the corelib
+    //   library usage of Deja,
+    //==============================================================================
+    //  Copyright (C) Guilaume Plante 2020 <codecastor@icloud.com>
+    //==============================================================================
+-->
+
+  <!-- Get the solution root folder from registry -->
+  <PropertyGroup Condition="'$(DisableRegistryUse)' != 'true'" Label="DejaInsightGlobals">
+    <DejaToolsRootDirectory Condition="'$(DejaToolsRootDirectory)' == ''">$(Registry:HKEY_CURRENT_USER\SOFTWARE\_gp\development\dejainsight@SdkDirectory)</DejaToolsRootDirectory>
+    <DejaToolsSdkIncludes Condition="'$(DejaToolsSdkIncludes)' == ''">$(Registry:HKEY_CURRENT_USER\SOFTWARE\_gp\development\dejainsight@Sdk_Incs)</DejaToolsSdkIncludes>
+    <DejaToolsSdkLibs Condition="'$(DejaToolsSdkLibs)' == ''">$(Registry:HKEY_CURRENT_USER\SOFTWARE\_gp\development\dejainsight@Sdk_Libs)</DejaToolsSdkLibs>
+
+    <!-- Check for Trailing Slash -->
+    <DejaToolsRootDirectory Condition=" '$(DejaToolsRootDirectory)'!='' AND !HasTrailingSlash('$(DejaToolsRootDirectory)') ">$(DejaToolsRootDirectory)\</DejaToolsRootDirectory>
+    <DejaToolsSdkIncludes Condition=" '$(DejaToolsSdkIncludes)'!='' AND !HasTrailingSlash('$(DejaToolsSdkIncludes)') ">$(DejaToolsSdkIncludes)\</DejaToolsSdkIncludes>
+    <DejaToolsSdkLibs Condition=" '$(DejaToolsSdkLibs)'!='' AND !HasTrailingSlash('$(DejaToolsSdkLibs)') ">$(DejaToolsSdkLibs)\</DejaToolsSdkLibs>
+  </PropertyGroup>
+
+  <Target Name="SetDejaInsightEnvironment"  BeforeTargets="_PrepareForBuild">
+        <Message Text="=====================================================================================================================" />
+        <Message Text="TARGET: SetDejaInsightEnvironment --- Building using the DEJA Insight tools at $(DejaToolsRootDirectory)..." />
+        <Message Text="   To exclude Deja Insights, use the pre-processor DEJA_DISABLED." />
+        <Message Text="   DejaToolsRootDirectory: $(DejaToolsRootDirectory)" />
+        <Message Text="   DejaToolsSdkIncludes: $(DejaToolsSdkIncludes)" />
+        <Message Text="   DejaToolsSdkLibs: $(DejaToolsSdkLibs)" />
+        <Message Text="   DisableRegistryUse: $(DisableRegistryUse)" />
+        <Message Text="====================================================================================================================" />
+        <Message Text=""/>
+  </Target>
+
+  <!-- General CodeMeter Environment added in UserMacros -->
+  <PropertyGroup Label="DejaInsightMacros">
+    <DejaInsightLib32>$(DejaToolsSdkLibs)\DejaInsight.x86.lib</DejaInsightLib32>
+    <DejaInsightDll32>$(DejaToolsSdkLibs)\DejaInsight.x86.dll</DejaInsightDll32>
+    <DejaInsightLib64>$(DejaToolsSdkLibs)\DejaInsight.x64.lib</DejaInsightLib64> 
+    <DejaInsightDll64>$(DejaToolsSdkLibs)\DejaInsight.x64.dll</DejaInsightDll64> 
+  </PropertyGroup>   
+
+  <Choose>
+    <When Condition="'$(Platform)'=='Win32' Or '$(Platform)'=='x86'">
+      <PropertyGroup>
+          <DejaInsight_LinkOpt_Lib>$(DejaToolsSdkLibs)\DejaInsight.x86.lib</DejaInsight_LinkOpt_Lib>
+          <DejaInsight_LinkOpt_Dll>$(DejaToolsSdkLibs)\DejaInsight.x86.dll</DejaInsight_LinkOpt_Dll>
+      </PropertyGroup>
+    </When>
+    <Otherwise>
+      <PropertyGroup>
+          <DejaInsight_LinkOpt_Lib>$(DejaToolsSdkLibs)\DejaInsight.x64.lib</DejaInsight_LinkOpt_Lib>
+          <DejaInsight_LinkOpt_Dll>$(DejaToolsSdkLibs)\DejaInsight.x64.dll</DejaInsight_LinkOpt_Dll>
+      </PropertyGroup>
+    </Otherwise>
+  </Choose>
+
+   <ItemDefinitionGroup>
+    <ClCompile>
+      <AdditionalIncludeDirectories>$(DejaToolsSdkIncludes);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>DEJA_ENABLED;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Link>
+      <AdditionalLibraryDirectories>$(DejaInsightLibPath);%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalDependencies>$(DejaInsight_LinkOpt_Lib);%(AdditionalDependencies)</AdditionalDependencies>
+    </Link>
+    <PostBuildEvent>
+      <Command>copy $(DejaInsight_LinkOpt_Dll) $(OutDir)</Command>
+    </PostBuildEvent>
+  </ItemDefinitionGroup>
+
+</Project>

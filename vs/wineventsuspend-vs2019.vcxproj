@@ -1,0 +1,178 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Debug|Win32">
+      <Configuration>Debug</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseUnicode|Win32">
+      <Configuration>ReleaseUnicode</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="ReleaseUnicode|x64">
+      <Configuration>ReleaseUnicode</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|Win32">
+      <Configuration>Release</Configuration>
+      <Platform>Win32</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="QtConf">
+    <QtVersion>5.12.4</QtVersion>
+    <QTDIR>$(QtRootPath)</QTDIR>
+    <QtExternalDir>$(QtRootPath)</QtExternalDir>
+  </PropertyGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{47711EAC-7501-4995-8CA2-CE81DC72648F}</ProjectGuid>
+    <Keyword>Win32Proj</Keyword>
+    <RootNamespace>wineventsuspend</RootNamespace>
+    <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <Import Project="$(ProjectDir)cfg\winapp.props" Label="ProjectConfig" />
+  <Import Project="$(ProjectDir)cfg\dejainsight.props" Condition="'$(dejainsight_integration)' == ''" />
+  <PropertyGroup Label="Configuration">
+    <ConfigurationType>Application</ConfigurationType>
+    <PlatformToolset>v142</PlatformToolset>
+    <LinkIncremental>false</LinkIncremental>
+  </PropertyGroup>
+  <ItemGroup>
+    <RootQRCFiles Include="$(SolutionDir)*.qrc" />
+    <AllPs1Files Include="$(SolutionDir)res\**\*.ps1" />
+    <RCCFiles Include="$(SolutionDir)*.rcc" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings">
+  </ImportGroup>
+  <ImportGroup Label="Shared">
+  </ImportGroup>
+  <ImportGroup Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <TargetName>wineventsuspend</TargetName>
+    <GenerateManifest>false</GenerateManifest>
+  </PropertyGroup>
+  <ItemGroup>
+    <ClCompile Include="$(ProjectRoot)src\main.cpp" />
+    <ClCompile Include="$(ProjectRoot)src\stdafx.cpp">
+      <PrecompiledHeader>Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="..\src\cmdline.cpp" />
+    <ClCompile Include="..\src\init.cpp" />
+    <ClCompile Include="..\src\log.cpp" />
+    <ClCompile Include="..\src\win32.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="$(ProjectRoot)src\resources.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\src\cmdline.h" />
+    <ClInclude Include="..\src\log.h" />
+    <ClInclude Include="..\src\macros.h" />
+    <ClInclude Include="..\src\nowarns.h" />
+    <ClInclude Include="..\src\stdafx.h" />
+    <ClInclude Include="..\src\targetver.h" />
+    <ClInclude Include="..\src\win32.h" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets">
+  </ImportGroup>
+  <Target Name="CustomClean" BeforeTargets="AfterClean">
+    <Message Text="Custom Clean" Importance="high" />
+    <ItemGroup>
+      <_CustomFilesToDelete Include="$(OutDir)\$(RootNamespace).*" />
+    </ItemGroup>
+    <Delete Files="@(_CustomFilesToDelete)" />
+  </Target>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Retail'">
+    <ClCompile>
+      <DebugInformationFormat>None</DebugInformationFormat>
+    </ClCompile>
+    <Manifest>
+      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">$(ProjectRoot)resources\modern_style.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <Manifest>
+      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">$(ProjectRoot)resources\modern_style.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <Link>
+      <ManifestFile Condition="'$(Configuration)|$(Platform)'=='Retail|x64'">$(ProjectDir)winapp.manifest</ManifestFile>
+    </Link>
+    <Link>
+      <ManifestFile Condition="'$(Configuration)|$(Platform)'=='Retail|Win32'">$(ProjectDir)winapp.manifest</ManifestFile>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Debug'">
+    <ClCompile>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <PreprocessorDefinitions Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ClCompile>
+    <Manifest>
+      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectRoot)resources\modern_style.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <Manifest>
+      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectRoot)resources\modern_style.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <Link>
+      <ManifestFile Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">$(ProjectDir)..\resources\app.manifest</ManifestFile>
+      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">RequireAdministrator</UACExecutionLevel>
+    </Link>
+    <Link>
+      <ManifestFile Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">$(ProjectDir)..\resources\app.manifest</ManifestFile>
+      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">RequireAdministrator</UACExecutionLevel>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='Release'">
+    <ClCompile>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Manifest>
+      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectRoot)resources\modern_style.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <Manifest>
+      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectRoot)resources\modern_style.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <Link>
+      <ManifestFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(ProjectDir)..\resources\app.manifest</ManifestFile>
+      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Release|x64'">RequireAdministrator</UACExecutionLevel>
+    </Link>
+    <Link>
+      <ManifestFile Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">$(ProjectDir)..\resources\app.manifest</ManifestFile>
+      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">RequireAdministrator</UACExecutionLevel>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="'$(Configuration)'=='ReleaseUnicode'">
+    <ClCompile>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+    </ClCompile>
+    <Manifest>
+      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|x64'">$(ProjectRoot)resources\modern_style.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <Manifest>
+      <AdditionalManifestFiles Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">$(ProjectRoot)resources\modern_style.manifest %(AdditionalManifestFiles)</AdditionalManifestFiles>
+    </Manifest>
+    <Link>
+      <ManifestFile Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|x64'">$(ProjectDir)..\resources\app.manifest</ManifestFile>
+      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|x64'">RequireAdministrator</UACExecutionLevel>
+    </Link>
+    <Link>
+      <ManifestFile Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">$(ProjectDir)..\resources\app.manifest</ManifestFile>
+      <UACExecutionLevel Condition="'$(Configuration)|$(Platform)'=='ReleaseUnicode|Win32'">RequireAdministrator</UACExecutionLevel>
+    </Link>
+  </ItemDefinitionGroup>
+  <ItemGroup Condition="'$(UsingQt5)' == '1'">
+    <QtRcc Include="$(AppResourceFile)">
+      <QmlCacheGenerate>false</QmlCacheGenerate>
+    </QtRcc>
+  </ItemGroup>
+</Project>
